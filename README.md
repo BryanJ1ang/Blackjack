@@ -10,7 +10,7 @@ We used rocks and erases as our money and just had a blast pretending we were wi
 The entire project is written in Python with the Pygame library used for the GUI and then converted into WebAssembly using Pygbag for deploying. Project can be expanded to
 include other card games as it is comprised of a Module containing a Card and Deck class with methods for shuffling, inserting and drawing cards.
 
-## KNOWN BUGS
+## Known Bugs
 * Cards do not reshuffle between sessions on web browser
 * SPLIT Button not yet implemented properly, currently does nothing
 
