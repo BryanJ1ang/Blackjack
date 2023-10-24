@@ -2,7 +2,7 @@
 Please visit <https://bryanjiang.itch.io/blackjack> to try the game
 
 ## The Game
-Blackjack is a popular casino card game pitting players against the dealer. The gameplay revolves around both sides attempting to have cards sum up as close to 21 as possible without going over. Currently, the web app allows the user to play three hands at once. You will be prompted to select the amount of money to bet for each hand. 
+Blackjack is a popular casino card game pitting players against the dealer. The gameplay revolves around both sides attempting to have their cards sum up as close to 21 as possible without going over. Currently, the web app allows the user to play three hands at once. You will be prompted to select the amount of money to bet for each hand. 
 
 <br/>
 ![image](https://github.com/BryanJ1ang/Python-Blackjack/assets/134325602/68ec5d57-f168-4a9a-bb8e-030bdbf30ea7)
