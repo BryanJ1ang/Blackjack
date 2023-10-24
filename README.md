@@ -11,7 +11,6 @@ The entire project is written in Python with the Pygame library used for the GUI
 include other card games as it is comprised of a Module containing a Card and Deck class with methods for shuffling, inserting and drawing cards.
 
 ## Known Bugs
-* Cards do not reshuffle between sessions on web browser
+* Deck does not reshuffle between sessions in the web game
 * SPLIT Button not yet implemented properly, currently does nothing
-
 
