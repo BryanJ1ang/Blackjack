@@ -1,19 +1,17 @@
-import Base
-
-import pytest
+import base, pytest
 
 def test_Card():
-    card1 = Base.Card(1, 1)
+    card1 = base.Card(1, 1)
     assert card1.value == 1
     assert card1.suite == 1
 
 def test_deck():
-    deck1 = Base.Deck()
+    deck1 = base.Deck()
     assert deck1.count == 52
     assert deck1.count == len(deck1.deck)
 
 def test_shuffle():
-    deck1 = Base.Deck()
+    deck1 = base.Deck()
     assert deck1.deck[0].value == 1
     assert deck1.deck[0].suite == 1
     
@@ -24,7 +22,7 @@ def test_shuffle():
     assert (value != deck1.deck[51].value) or (suite != deck1.deck[51].suite)
 
 def draw_card():
-    deck1 = Base.Deck()
+    deck1 = base.Deck()
     card = deck1.deck[0]
     card2 = deck1.drawCard()
     assert card == card2
@@ -39,7 +37,7 @@ def test_draw_card():
 
 
 def test_draw_card_add_card():
-    deck = Base.Deck()
+    deck = base.Deck()
     assert deck.count == 52
     assert deck.count == len(deck.deck)
     card = deck.deck[0]

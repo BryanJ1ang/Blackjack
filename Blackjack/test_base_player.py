@@ -1,7 +1,7 @@
-import pytest, Base
+import pytest, base
 
 def test_wager_winner():
-    bet = Base.Wager(5000)
+    bet = base.Wager(5000)
     assert bet.amount == 5000
     assert bet.is_winner == False
     bet.has_won(True)
@@ -10,13 +10,13 @@ def test_wager_winner():
     assert bet.is_winner == False
 
 def test_player():
-    player1 = Base.Player("Player 1", 1000)
+    player1 = base.Player("Player 1", 1000)
     assert player1.name == "Player 1"
     assert player1.money == 1000
     assert len(player1.hand) == 0
     
 def test_player_wager():
-    player1 = Base.Player("Player 1", 1000)
+    player1 = base.Player("Player 1", 1000)
     player1.wager(200)
     assert player1.player_wager.amount == 200
     assert player1.player_wager.is_winner == False

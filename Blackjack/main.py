@@ -1,24 +1,24 @@
-import pygame, Base, Game, GUI_Button, sys, asyncio
+import pygame, base, game, GUI_Button, sys, asyncio
 import os.path
 
 pygame.init()
 width = 1920
 height = 1080
+cache_cards: dict = {}
+running = True
+screen = pygame.display.set_mode((width,height))
+
 card_width = 150
 card_height = card_width * 1.4193548
 number_players = 3
-current_player: int = 0
-max_bet = 2000
-min_bet = 100
+current_player = 0
+max_bet = 999999
+min_bet = 200
 bet_increment = 100
 game_state = 1
-cache_cards: dict = {}
-running = True
+colors = [pygame.Color(250,237,39), pygame.Color(31,81,255), pygame.Color(255,49,49)] # yellow, blue, red
 
-screen = pygame.display.set_mode((width,height))
-clock = pygame.time.Clock()
-game = Game.BlackJack(3, 10000, 2) # 3 players, 1000 starting bankroll, 2 decks
-
+game = game.BlackJack(3, 7500, 2) # number of players, starting bankroll, number of decks
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
 # EFFECTS: Blocks unnecessary mouse/keyboard events
@@ -30,22 +30,13 @@ def setup_events():
     pygame.event.set_blocked(pygame.MOUSEBUTTONUP)
     pygame.event.set_allowed(pygame.MOUSEBUTTONDOWN)
 
-
+# EFFECTS: Processes exit button
 def exit_button(pos):
     exit = GUI_Button.Button(pygame.Color(128,128,128), width - 200, 0, 75, 75, "EXIT")
     exit.draw(screen)
     if (pos != None):
         if (exit.isOver(pos)):
                 return True
-
-#EFFECTS: renders the hand of a player at coordinate (x,y)
-def render_cards(player: Base.Player, x: int, y: int):
-    offset = 0.15555 * card_width
-    for count in range(0, len(player.hand)):
-        card: Base.Card = player.hand[count]
-        image = retrieve_cached_image(card)
-        image = pygame.transform.scale(image, (card_width,card_height))
-        screen.blit(image, (x + offset * count,y))
 
 # EFFECTS: Caches all card images into a dict
 def cache_images():
@@ -66,28 +57,9 @@ def cache_images():
             image = pygame.image.load(os.path.join(file2, file))
             cache_cards.update({(value, suite): image})
 
-# EFFECTS: Returns image of card from cache
-def retrieve_cached_image(card: Base.Card):
+# EFFECTS: Returns image of a card from cache
+def retrieve_cached_image(card: base.Card):
     return cache_cards.get((card.value, card.suite))
-
-#EFFECTS: Returns specific image of a card
-def retrieve_image(card: Base.Card):
-    suite: str = ""
-    file: str
-    if (card.suite == 1):
-        suite = "diamonds"
-    if (card.suite == 2):
-        suite = "clubs"
-    if (card.suite == 3):
-        suite = "hearts"
-    if (card.suite == 4):
-        suite = "spades"
-    file =  str(card.value) + "_of_" + suite + ".png"
-    file2 = "/data/data/blackjack/assets/card_images/"
-    #file2 = "card_images/"
-    image = pygame.image.load(os.path.join(file2, file))
-    #image = pygame.image.load(file2 + file).convert()
-    return image
 
 #EFFECTS: Renders game command buttons onto screen
 def render_buttons():
@@ -106,7 +78,8 @@ def render_buttons():
     double.draw(screen)
     surrender = GUI_Button.Button(color, (width / 2) + 20 + button_width * 1.5, button_y_location, button_width, button_height, "SURRENDER")
     surrender.draw(screen)
-    
+
+# EFFECTS: Returns a string of the button pressed
 def button_clicked(pos):
     button_width: int = 250
     button_height : int = 100
@@ -128,8 +101,10 @@ def button_clicked(pos):
         return double.returnText()
     if (surrender.isOver(pos)):
         return surrender.returnText()
-    return ""
+    else:
+        return ""
 
+# EFFECTS: Processes game state given a button is clicked
 def handle_buttons(command: str):
     global current_player
     if (command == "HIT"):
@@ -141,7 +116,6 @@ def handle_buttons(command: str):
         current_player += 1
         return
     if (command == "SPLIT"):
-        current_player += 1
         return 
     if (command == "DOUBLE"):
         game.players[current_player].player_wager.add_wager(game.players[current_player].player_wager.amount)
@@ -150,12 +124,13 @@ def handle_buttons(command: str):
         return
     if (command == "SURRENDER"):
         current = game.players[current_player].player_wager.amount
-        game.players[current_player].player_wager = Base.Wager(current / 2)
+        game.players[current_player].player_wager = base.Wager(current / 2)
         game.players[current_player].player_wager.has_won(4)
         current_player += 1
         return # stub
 
-def handle_buttons_betting(command: str, player: Base.Player):
+# EFFECTS: Processes buttons for changing a player's wager
+def handle_buttons_betting(command: str, player: base.Player):
     global current_player, bet_increment, max_bet, min_bet
     if (command == "+"):
         if (player.player_wager.amount + bet_increment > player.money):
@@ -174,18 +149,27 @@ def handle_buttons_betting(command: str, player: Base.Player):
         current_player += 1
         screen.fill(pygame.Color(78,106,84))
 
+#EFFECTS: Renders the hand of a player at coordinates (x,y)
+def render_cards(player: base.Player, x: int, y: int):
+    offset = 0.15555 * card_width
+    for count in range(0, len(player.hand)):
+        card: base.Card = player.hand[count]
+        image = retrieve_cached_image(card)
+        image = pygame.transform.scale(image, (card_width,card_height))
+        screen.blit(image, (x + offset * count,y))
 
+# EFFECTS: Renders each player's hand with delay in between each card
 def render_hands(delay: int):
+    global number_players
     card_offset = ((card_width + 55) / 2)
-    pygame.time.delay(delay)
-    render_cards(game.players[0], width - (width / 3) - card_offset + 200 + 50, height - 500)
-    pygame.display.flip()
-    pygame.time.delay(delay)
-    render_cards(game.players[1], width / 2 - card_offset + 50, height - 400)    
-    pygame.display.flip()
-    pygame.time.delay(delay)
-    render_cards(game.players[2], 0 + (width / 3) - card_offset - 200 + 50, height - 500)  
-    pygame.display.flip()
+    for curr in range(number_players):
+        pygame.time.delay(delay)
+        if (curr % 2 == 1):
+            render_cards(game.players[curr] ,width - (curr + 1) * (width / 4) - card_offset + 100, height - 400)
+        else: 
+            render_cards(game.players[curr] ,width - (curr + 1) * (width / 4) - card_offset + 100, height - 500)
+
+
 
 def render_confirm_button(x, y, pos):
     button = GUI_Button.Button("green",x, y, 200, 50, "CONFIRM")
@@ -194,7 +178,8 @@ def render_confirm_button(x, y, pos):
         if (button.isOver(pos)):
             handle_buttons_betting("NEXT", None)
 
-def render_balance(player: Base.Player, x: int, y: int):
+
+def render_balance(player: base.Player, x: int, y: int):
     button = GUI_Button.Button(pygame.Color(1,2,3), x, y, 200, 50, "Balance: " + str(player.money))
     button.changeFontColor((255,255,255))
     button.draw(screen)
@@ -214,69 +199,56 @@ def render_bet_button(x: int, y: int, amount: int, pos, a):
         if (plus.isOver(pos)):
             handle_buttons_betting(plus.text, game.players[current_player])
         if (minus.isOver(pos)):
-            handle_buttons_betting(minus.text, game.players[current_player])
-        if (bet.isOver(pos)):
-            handle_buttons_betting("NEXT", game.players[current_player])
+            handle_buttons_betting(minus.text, game.players[current_player])\
 
-
+# Renders player bet placing interface
+def render_bet_player(pos, x: int, y: int, player: base.Player):
+    global colors
+    card_offset = ((card_width + 55) / 2)
+    render_bet_button(x, y, player.player_wager.amount, pos, 255)
+    render_balance(player, x, y - 50)
+    
+# Processes player bets
 def process_bets(pos):
     card_offset = ((card_width + 55) / 2)
-    if (current_player == 0): # Buttons other than for player 0 are partially transparent
-        render_bet_button(width - (width / 3) - card_offset + 200 - 150, height - 450, game.players[0].player_wager.amount, pos, 255)
-        render_balance(game.players[0], width - (width / 3) - card_offset + 200 - 150, height - 400)
-        
-        render_bet_button(0 + (width / 3) - card_offset - 200 - 150, height - 450, game.players[2].player_wager.amount, pos, 100)
-        render_balance(game.players[2], 0 + (width / 3) - card_offset - 200 - 150, height - 400)
+    for curr in range(number_players):
+        if (curr % 2 == 1):
+            render_bet_player(pos, width - (curr + 1)*(width / 4) - card_offset + 50, height - 300, game.players[curr])
+            render_player(game.players[curr],  width - (curr + 1)*(width / 4) - card_offset + 50,  height - 400, colors[curr])
+        else: 
+            render_bet_player(pos, width - (curr + 1)*(width / 4) - card_offset + 50, height - 450, game.players[curr])
+            render_player(game.players[curr], width - (curr + 1)*(width / 4) - card_offset + 50,  height - 550, colors[curr])
+        if (curr == current_player):
+            if (curr % 2 == 1):
+                render_confirm_button(width - (curr +1) * (width / 4) - card_offset + 50, height - 250, pos)
+            else:
+                render_confirm_button(width - (curr +1) * (width / 4) - card_offset + 50, height - 400, pos)
 
-        render_bet_button(width / 2 - card_offset - 150, height - 350, game.players[1].player_wager.amount, pos, 100)
-        render_balance(game.players[1],  width / 2 - card_offset - 150, height - 300)
-
-        render_confirm_button(width - (width / 3) - card_offset + 200 - 150, height - 350, pos)
-
-    if (current_player == 1): # Buttons other than for player 1 are partially transparent
-        render_bet_button(width - (width / 3) - card_offset + 200 - 150, height - 450, game.players[0].player_wager.amount, pos, 100) 
-        render_balance(game.players[0], width - (width / 3) - card_offset + 200 - 150, height - 400)
-
-        render_bet_button(0 + (width / 3) - card_offset - 200 - 150, height - 450, game.players[2].player_wager.amount, pos, 100)
-        render_balance(game.players[2], (width / 3) - card_offset - 200 - 150, height - 400)
-        
-        render_bet_button(width / 2 - card_offset - 150, height - 350, game.players[1].player_wager.amount, pos, 255)
-        render_balance(game.players[1],  width / 2 - card_offset - 150, height - 300)
-
-        render_confirm_button(width / 2 - card_offset - 150, height - 250, pos)
-
-    if (current_player == 2): # Buttons other than for player 1 are partially transparent
-        render_bet_button(width - (width / 3) - card_offset + 200 - 150, height - 450, game.players[0].player_wager.amount, pos, 100) 
-        render_balance(game.players[0], width - (width / 3) - card_offset + 200 - 150, height - 400)
-
-        render_bet_button(0 + (width / 3) - card_offset - 200 - 150, height - 450, game.players[2].player_wager.amount, pos, 255)
-        render_balance(game.players[2], (width / 3) - card_offset - 200 - 150, height - 400)
-        
-        render_bet_button(width / 2 - card_offset - 150, height - 350, game.players[1].player_wager.amount, pos, 100)
-        render_balance(game.players[1],  width / 2 - card_offset - 150, height - 300)
-
-        render_confirm_button((width / 3) - card_offset - 200 - 150, height - 350, pos)
-        
-def render_game_bar(x, y, player: Base.Player, current: bool):
+# EFFECTS: Renders gameplay information for given player
+def render_game_bar(x, y, player: base.Player, current: bool):
     card_offset = ((card_width + 55) / 2)
     bet = GUI_Button.Button(pygame.Color(202,151,74), x, y, 200, 50, "Wager: " + str(player.player_wager.amount))
     bet.draw(screen)
     value = GUI_Button.Button(pygame.Color(255,255,255), x, y + 100, 200, 50, "Hand: " + str(game.value_of_hand(player)))
     value.draw(screen)
     if (current):
-        turn = GUI_Button.Button(pygame.Color(202,151,74), x + 200, y - 100, 200, 50, "Your Turn!")
+        turn = GUI_Button.Button(pygame.Color(202,151,74), x + 100, y - 125, 200, 50, "Your Turn!")
         turn.draw(screen)
 
+# EFFECTS: Renders gameplay information for all players
 def render_all_game_bar():
+    global current_player, colors
     card_offset = ((card_width + 55) / 2)
-    render_game_bar(width - (width / 3) - card_offset + 200 - 150, height - 450, game.players[0], current_player == 0)
-    render_balance(game.players[0], width - (width / 3) - card_offset + 200 - 150, height - 400)
-
-    render_game_bar(0 + (width / 3) - card_offset - 200 - 150, height - 450, game.players[2], current_player == 2)
-    render_balance(game.players[2], (width / 3) - card_offset - 200 - 150, height - 400)
-
-    render_game_bar(width / 2 - card_offset - 150, height - 350, game.players[1], current_player == 1)
-    render_balance(game.players[1],  width / 2 - card_offset - 150, height - 300)
+    render_player(game.dealer,(width / 2) - (card_width / 2 + card_offset) + 117, 76, pygame.Color(155,166,178))
+    for curr in range(number_players):
+            if (curr % 2 == 1):
+                render_game_bar(width - (curr + 1) * (width / 4) - card_offset - 110, height - 400, game.players[curr], curr == current_player)
+                render_balance(game.players[curr], width - (curr + 1) * (width / 4) - card_offset - 110, height - 350)
+                render_player(game.players[curr], width - (curr + 1) * (width / 4) - card_offset - 110, height - 450, colors[curr])
+            else: 
+                render_game_bar(width - (curr + 1) * (width / 4) - card_offset - 110, height - 500, game.players[curr], curr == current_player)
+                render_balance(game.players[curr], width - (curr + 1) * (width / 4) - card_offset - 110, height - 450)
+                render_player(game.players[curr], width - (curr + 1) * (width / 4) - card_offset - 110, height - 550, colors[curr])
 
 def render_all_players():
     card_offset = ((card_width + 55) / 2)
@@ -284,36 +256,37 @@ def render_all_players():
     render_player(game.players[1], width / 2 - card_offset - 150, height - 400, pygame.Color(57,255,20))    
     render_player(game.players[2], 0 + (width / 3) - card_offset - 200 - 150, height - 500, pygame.Color(255,49,49))
 
-def render_player(player: Base.Player, x: int, y: int, color: pygame.Color):
+def render_player(player: base.Player, x: int, y: int, color: pygame.Color):
     button = GUI_Button.Button(color, x, y, 200, 50, player.name)
     button.draw(screen)
 
-def process_win_loss():
-    return # stub
 
 def process_dealer(value: int):
     global game_state
-    render_cards(game.dealer, (width / 2) -  0.15555 * card_width + 50, 200)
+    offset = 0.1555555 * card_width
     pygame.display.flip()
     if (value < 17):
         game.deal_card(game.dealer)
-        render_hands(0)
+        render_cards(game.dealer, (width / 2) - (card_width / 2 + offset) + 50, 150)
         pygame.display.flip()
     else:
         game_state = 5
 
-def dealer_face_down_card_render(dealer: Base.Player):
+# EFFECTS: Renders the dealer's facedown card
+def dealer_face_down_card_render(dealer: base.Player):
     offset = 0.15555 * card_width
-    button = GUI_Button.Button(pygame.Color(1,2,3),  (width / 2) - offset + 50, 200, card_width, card_height, "Good Luck")
+    button = GUI_Button.Button(pygame.Color(1,2,3),  (width / 2) - (card_width / 2) + 50, 150, card_width, card_height, "Good Luck")
     button.draw(screen)
 
-def dealer_face_up_card_render(dealer: Base.Player):
+# EFFECTS: Renders the dealers face up card
+def dealer_face_up_card_render(dealer: base.Player):
     offset = 0.15555 * card_width
-    card: Base.Card = dealer.hand[0]
+    card: base.Card = dealer.hand[0]
     image = retrieve_cached_image(card)
     image = pygame.transform.scale(image, (card_width,card_height))
-    screen.blit(image, ((width / 2) + 50, 200))
+    screen.blit(image, ((width / 2) - (card_width / 2 + offset) + 50, 150))
 
+# EFFECTS: Renders/updates all player's current hand
 def render_gameplay():
     global game_state
     screen.fill(pygame.Color(78,106,84))
@@ -321,11 +294,11 @@ def render_gameplay():
     dealer_face_up_card_render(game.dealer)
     exit_button(None)
     render_buttons()
-    render_all_players()
     render_hands(0)
     render_all_game_bar()
     pygame.display.flip()
 
+#EFFECTS: Renders the dealing of cards to players and dealer
 def setup_game():
     render_all_game_bar()
     pygame.display.flip()
@@ -340,13 +313,14 @@ def setup_game():
     render_all_game_bar()
     pygame.display.flip()
     
+#EFFECTS: Renders all buttons for bet placing 
 def setup_bets():
-    global current_player
+    global current_player, number_players
     exit_button(None)
-    render_all_players()
     process_bets(None)
     pygame.display.flip()        
 
+#EFFECTS: Awards/removes money from players accordingly
 def process_winners():
     game.compare_hands()
     game.award_all_money()
@@ -364,7 +338,6 @@ async def main():
                 game.reset_deck()
                 game.deck.shuffleDeck()
                 game.clear_hands()
-                render_all_players()
                 exit_button(None)
                 process_bets(None)
                 setup_bets()
@@ -400,21 +373,25 @@ async def main():
                         game_state = 0
                         pygame.quit()
                         sys.exit()
-                    handle_buttons(button_clicked(pos))
-                    render_gameplay()
-                    pygame.display.flip()
-                    
-                while (current_player >= number_players):
-                        process_dealer(game.value_of_hand(game.dealer))
-                        process_win_loss()
-                        if (game.value_of_hand(game.dealer) > 17):
-                            break
-                        await asyncio.sleep(1)
-                    
-            if (game_state == 5): # Process winners and bets
-                process_winners()
-                game_state = 1
-                await asyncio.sleep(2)
+                    if (current_player < number_players):
+                        handle_buttons(button_clicked(pos))
+                        render_gameplay()
+                        pygame.display.flip()
+                    while (current_player >= number_players):
+                            offset = 0.15555 * card_width
+                            render_cards(game.dealer, (width / 2) - (card_width / 2 + offset) + 50, 150)
+                            pygame.display.flip()
+                            await asyncio.sleep(1)
+                            process_dealer(game.value_of_hand(game.dealer))
+                            if (game.value_of_hand(game.dealer) >= 17):
+                                button = GUI_Button.Button(pygame.Color(99,65,15), width / 2 - 100, height / 2 - 75, 200, 100, "NEW GAME")
+                                button.draw(screen)
+                                process_winners()
+                                game_state = 1
+                                render_all_game_bar()
+                                pygame.display.flip()
+                                await asyncio.sleep(1)
+                                break
 
             if (game_state == 0):
                 running = False

@@ -1,19 +1,19 @@
 import pygame
-import Base
+import base
 
 # Class representing a game of Blackjack
 class BlackJack:
     number_decks : int = 1
-    dealer = Base.Player("Dealer", 999999)
+    dealer = base.Player("Dealer", 999999)
     players = []
-    deck = Base.Deck()
+    deck = base.Deck()
 
    # players is number of players, must >= 1
    # bankroll is starting amount of money for each player
     def __init__(self, players, bankroll, number_of_decks):
         for x in range(0, players):
-            player = Base.Player("Player " + str(x + 1), bankroll)
-            player.player_wager = Base.Wager(500)
+            player = base.Player("Player " + str(x + 1), bankroll)
+            player.player_wager = base.Wager(500)
             self.players.append(player)
         for y in range(1, number_of_decks):
             self.deck.addDeck()
@@ -21,7 +21,7 @@ class BlackJack:
 
 
     # EFFECTS: Returns value of the hand
-    def value_of_hand(self, player: Base.Player):
+    def value_of_hand(self, player: base.Player):
         count = len(player.hand)
         value = 0
         ace = False
@@ -93,7 +93,7 @@ class BlackJack:
                 continue
             
     # EFFECTS: Deals a card to a specific player from deck
-    def deal_card(self, player: Base.Player):
+    def deal_card(self, player: base.Player):
         card = self.deck.drawCard()
         player.dealCard(card)
 
@@ -105,7 +105,7 @@ class BlackJack:
         
     # EFFECTS: Reshuffles decks with all drawn cards
     def reset_deck(self):
-        deck = Base.Deck()
+        deck = base.Deck()
         for y in range(1, self.number_decks):
             self.deck.addDeck()
         deck.shuffleDeck()
