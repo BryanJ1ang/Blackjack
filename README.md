@@ -3,7 +3,7 @@ Please visit <https://bryanjiang.itch.io/blackjack> to try the game
 
 ## Inspiration
 Back in high school, my friends and I used to play card games all the time during lunch time. Games such as Big Two and Crazy Eights gave me fond memories but Blackjack in particular was unforgettable.
-We used rocks and erases as our money and just had a blast pretending we were winning big money. As such, this project pays a bit of homage to my high school days as well as letting me refine my Python skills.
+We used rocks and erases as our money and just had a blast pretending we were winning big money. As such, this project pays a bit of homage to my high school days as well as letting me develop my Python and general programming skills.
 
 
 ## The Process
