@@ -5,7 +5,9 @@ Please visit <https://bryanjiang.itch.io/blackjack> to try the game
 Blackjack is a popular casino card game pitting players against the dealer. The gameplay revolves around both sides attempting to have their cards sum up as close to 21 as possible without going over. Currently, the web app allows the user to play three hands at once. At the start, you will be prompted to select the amount of money to bet for each hand. 
 
 <br/>
-![image](https://github.com/BryanJ1ang/Python-Blackjack/assets/134325602/4b2e2a1c-fcff-479a-a8bc-d316cfeed59c)
+
+![image](https://github.com/BryanJ1ang/Python-Blackjack/assets/134325602/538f1d9e-044d-4c12-8360-6b94f6e4612a)
+
 <br/>
 
 Once all bets have been placed, the game starts with each player as well as the dealer each dealt two cards. One of the dealer's card is face down during this stage of the game. Then in a clock-wise rotation, player's are able to choose from a range of commands. HIT deals one more card while STAND ends the player's turn with their current total. 
