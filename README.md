@@ -6,7 +6,7 @@ Blackjack is a popular casino card game pitting players against the dealer. The 
 
 ![image](https://github.com/BryanJ1ang/Python-Blackjack/assets/134325602/68ec5d57-f168-4a9a-bb8e-030bdbf30ea7)
 
-Once all bets have been placed, the game starts with each player as well as the dealer each dealt two cards. One of the dealer's card if face down. Then in a clock-wise rotation, player's are able to choose from a range of commands. HIT deals one more card while STAND ends the player's turn with their current total. 
+Once all bets have been placed, the game starts with each player as well as the dealer each dealt two cards. One of the dealer's card is face down during this stage of the game. Then in a clock-wise rotation, player's are able to choose from a range of commands. HIT deals one more card while STAND ends the player's turn with their current total. 
 ![image](https://github.com/BryanJ1ang/Python-Blackjack/assets/134325602/7d97dec0-862d-45b6-8a59-e3c9c18522ab)
 
 
